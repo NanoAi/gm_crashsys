@@ -3,8 +3,8 @@ if game.SinglePlayer() then return end
 local GRACE_TIME = 3.5 -- How many seconds of lag should we have before showing the panel?
 local PING_MISS = 2 -- How many pings can we miss on join?
 
-local CHAT_LINK = nil -- The link to copy, when requesting a chat link. (Set to nil if you don't have one!)
-local CHAT_PLATFORM = nil -- The platform you use for chat. (Set to nil if you're not sure!)
+local CHAT_LINK = "https://discord.gg/utpR3gJ" -- The link to copy, when requesting a chat link. (Set to nil if you don't have one!)
+local CHAT_PLATFORM = "Discord" -- The platform you use for chat. (Set to nil if you're not sure!)
 
 local API_RESPONSE = 0 -- Idle, not waiting for a response.
 local api_retry = 5
@@ -16,6 +16,13 @@ local crash_time
 
 local delay = 0
 local times = 1
+
+-- Ping the server when the client is ready.
+hook.Add("InitPostEntity", "crashsys", function()
+	net.Start("crashsys")
+	net.SendToServer()
+	hook.Remove("InitPostEntity", "crashsys")
+end)
 
 -- Delay Function
 local function delaycall(time, callback)
@@ -90,7 +97,7 @@ end
 
 hook.Add("Tick", "crashsys", function()
 	if not lastPong then return end
-	if not IsValid(LocalPlayer()) then return end -- disconnected or connecting
+	if not LocalPlayer():IsValid() then return end -- disconnected or connecting
 
 	local timeout = RealTime() - lastPong
 
@@ -331,7 +338,7 @@ do -- gui
 					end
 				end
 
-				if fraction >= 1 then
+				if per >= 99 then
 					DermaPanel:Close()
 					delaycall(0.03, function()
 						RunConsoleCommand("retry")
